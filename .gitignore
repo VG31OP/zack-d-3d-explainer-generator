@@ -116,3 +116,7 @@ storage/instagram*
 storage/*.json
 *.session
 *.cookies
+storage/characters/
+storage/*.html
+storage/*.png
+Worker+set+fbx/
