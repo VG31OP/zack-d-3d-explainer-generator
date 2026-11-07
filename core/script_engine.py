@@ -36,7 +36,7 @@ class ScriptEngine:
         t_lower = topic.lower()
 
         # Domain 1: Smartphones, Electronics & Gadgets
-        if any(w in t_lower for w in ["phone", "screen", "oled", "touchscreen", "battery", "face id", "camera", "pixel", "charger", "wireless charging"]):
+        if any(w in t_lower for w in ["phone", "screen", "oled", "touchscreen", "battery", "batteries", "lithium", "face id", "camera", "pixel", "charger", "wireless charging", "puncture", "explode"]):
             if "oled" in t_lower or "burn" in t_lower:
                 return [
                     "When you leave a static image on an OLED screen for too long,",
@@ -59,7 +59,7 @@ class ScriptEngine:
                     "When mixed with trapped water, this starch turns into a sticky sludge that accelerates corrosion.",
                     "Which permanently fries your motherboard circuits faster than just letting it air dry."
                 ]
-            if any(w in t_lower for w in ["battery", "puncture", "explode"]):
+            if any(w in t_lower for w in ["battery", "batteries", "puncture", "explode", "lithium"]):
                 return [
                     "When a smartphone lithium-ion battery gets punctured by a sharp nail,",
                     "some people assume the liquid chemicals inside instantly catch fire like gasoline.",

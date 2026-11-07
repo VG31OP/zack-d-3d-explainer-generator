@@ -119,4 +119,5 @@ storage/*.json
 storage/characters/
 storage/*.html
 storage/*.png
+templates/zach_engine/assets/
 Worker+set+fbx/

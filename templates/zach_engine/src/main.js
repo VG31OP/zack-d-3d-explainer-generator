@@ -147,7 +147,13 @@ window.renderAt = (t) => {
 
 // interactive preview: ?t=12.3 for a still, otherwise realtime playback
 const qs = new URLSearchParams(location.search);
-window.ready = document.fonts.ready.then(() => true);
+const assetsReady = new Promise((resolve) => {
+  let done = false;
+  const finish = () => { if (!done) { done = true; resolve(true); } };
+  THREE.DefaultLoadingManager.onLoad = finish;
+  setTimeout(finish, 8000);
+});
+window.ready = Promise.all([document.fonts.ready, assetsReady]).then(() => true);
 if (qs.has('t')) window.ready.then(() => window.renderAt(parseFloat(qs.get('t'))));
 else if (!qs.has('render')) {
   const audio = new Audio('./audio.m4a');

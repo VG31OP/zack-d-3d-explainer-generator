@@ -91,7 +91,7 @@ class SceneBuilder:
         # Domain selection
         if "rice" in t_lower:
             shots_code = self._generate_rice_phone_shots(t1, t2, t3, t4, t5, t6, t7, duration, twist_fade_start, twist_fade_end, captions)
-        elif any(w in t_lower for w in ["battery", "puncture", "explode"]):
+        elif any(w in t_lower for w in ["battery", "batteries", "puncture", "explode", "lithium"]):
             shots_code = self._generate_battery_puncture_shots(t1, t2, t3, t4, t5, t6, t7, duration, twist_fade_start, twist_fade_end, captions)
         elif any(w in t_lower for w in ["gum", "swallow", "stomach", "digest", "gut"]):
             shots_code = self._generate_digestion_shots(t1, t2, t3, t4, t5, t6, t7, duration, twist_fade_start, twist_fade_end, captions)

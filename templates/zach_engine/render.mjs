@@ -7,7 +7,16 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.woff2': 'font/woff2', '.m4a': 'audio/mp4' };
+const types = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.woff2': 'font/woff2',
+  '.m4a': 'audio/mp4',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.fbx': 'application/octet-stream',
+};
 const server = http.createServer((req, res) => {
   const p = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]));
   fs.readFile(p, (e, d) => {
@@ -67,10 +76,11 @@ const page = await browser.newPage({ viewport: { width: 720, height: 1280 } });
 page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
 page.on('pageerror', e => console.log('[pageerror]', e.message));
 
-await page.goto(`http://localhost:${port}/index.html?render=1`);
-await page.waitForFunction(() => window.renderAt && window.ready);
+page.setDefaultTimeout(60000);
+await page.goto(`http://localhost:${port}/index.html?render=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+await page.waitForFunction(() => window.renderAt && window.ready, { timeout: 60000 });
 await page.evaluate(() => window.ready);
-const shot = () => page.screenshot({ clip: { x: 0, y: 0, width: 720, height: 1280 }, type: 'png' });
+const shot = () => page.screenshot({ clip: { x: 0, y: 0, width: 720, height: 1280 }, type: 'png', timeout: 30000 });
 
 const [mode, a, b, c, d, e] = process.argv.slice(2);
 if (mode === 'stills') {

@@ -68,6 +68,11 @@ export function materials() {
     hairGrey: new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.85, bumpMap: fab, bumpScale: 2 }),
     glassesFrame: new THREE.MeshPhysicalMaterial({ color: 0x09090b, metalness: 0.6, roughness: 0.2, clearcoat: 0.8 }),
     glassesLens: new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.32, roughness: 0.05, transmission: 0.9, ior: 1.5 }),
+    // Worker Character Overalls & Sneakers
+    clothOveralls: new THREE.MeshStandardMaterial({ color: 0x4a7eb8, roughness: 0.85, bumpMap: fab, bumpScale: 1.3 }),
+    clothWhite: new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.72, bumpMap: fab, bumpScale: 1.0 }),
+    sneakerRoyalBlue: new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.42 }),
+    skinAsian: new THREE.MeshPhysicalMaterial({ color: 0xdfad86, roughness: 0.52, sheen: 0.6, sheenColor: new THREE.Color(0xffd8c0), sheenRoughness: 0.5, bumpMap: skinN, bumpScale: 0.6, clearcoat: 0.08 }),
   };
   const cm = chainmailTextures([14, 9]);
   M.chainmail = new THREE.MeshPhysicalMaterial({
