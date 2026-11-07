@@ -1,45 +1,5 @@
 import * as THREE from 'three';
 import { materials } from './materials.js';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
-import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-
-let workerFbxPromise = null;
-let cachedWorkerFbx = null;
-
-function getWorkerFBX(cb) {
-  if (cachedWorkerFbx) {
-    const clone = SkeletonUtils.clone(cachedWorkerFbx);
-    cb(clone);
-    return;
-  }
-  if (!workerFbxPromise) {
-    const loader = new FBXLoader();
-    loader.setResourcePath('./assets/character/textures/');
-    workerFbxPromise = loader.loadAsync('./assets/character/asian worker.fbx').then(fbx => {
-      fbx.traverse(c => {
-        if (c.isMesh) {
-          const mats = Array.isArray(c.material) ? c.material : [c.material];
-          mats.forEach(m => {
-            m.transparent = false;
-            m.depthWrite = true;
-            m.side = THREE.DoubleSide;
-          });
-        }
-      });
-      cachedWorkerFbx = fbx;
-      return fbx;
-    }).catch(e => {
-      console.warn('Could not load asian worker FBX:', e);
-      return null;
-    });
-  }
-  workerFbxPromise.then(fbx => {
-    if (fbx) {
-      const clone = SkeletonUtils.clone(fbx);
-      cb(clone);
-    }
-  });
-}
 
 // ---------- torso profile (radius by height in spine space) ----------
 const KEYS = [
@@ -195,11 +155,10 @@ function buildHead(M, { character = 'zack', helmet = false, hood = false } = {})
   hairBase.scale.set(0.9, 1.1, 1.02); hairBase.position.set(0, 0.103, -0.006); hairBase.rotation.x = -0.42; head.add(hairBase);
 
   if (isWorker) {
-    // Asian Worker sleek parted hair (matching Character 2)
-    const topHair = sph(0.076, hairMat, [0, 0.198, 0.02], [1.08, 0.58, 1.08]); head.add(topHair);
-    head.add(sph(0.040, hairMat, [-0.038, 0.170, 0.082], [0.95, 0.72, 0.85]));
-    head.add(sph(0.042, hairMat, [0.038, 0.168, 0.082], [0.95, 0.72, 0.85]));
-    for (const s of [-1, 1]) head.add(sph(0.024, hairMat, [s * 0.082, 0.125, 0.002], [0.35, 1.25, 0.95]));
+    // Asian Worker sleek tapered hair (matching Character 2)
+    const topHair = sph(0.085, hairMat, [0, 0.165, 0.005], [1.02, 0.48, 1.04]); head.add(topHair);
+    head.add(sph(0.042, hairMat, [0, 0.142, 0.068], [1.35, 0.32, 0.62])); // sleek fringe
+    for (const s of [-1, 1]) head.add(sph(0.024, hairMat, [s * 0.082, 0.108, -0.005], [0.32, 1.15, 0.85])); // sides/fade
   } else if (character === 'zack') {
     // Zack D. classic quiff
     const quiff = sph(0.07, hairMat, [0.01, 0.19, 0.035], [1.1, 0.55, 0.9]); quiff.rotation.z = -0.2; head.add(quiff);
@@ -266,9 +225,9 @@ function buildHead(M, { character = 'zack', helmet = false, hood = false } = {})
     function buildHand(M, mat, side) {
       const g = new THREE.Group();
 
-      // 1. Smooth tapered wrist connecting forearm cuff to palm
-      const wrist = new THREE.Mesh(new THREE.CylinderGeometry(0.030, 0.036, 0.045, 24), mat);
-      wrist.position.set(0, -0.016, 0);
+      // 1. Smooth tapered wrist connecting forearm seamlessly to palm
+      const wrist = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.040, 0.045, 24), mat);
+      wrist.position.set(0, 0.005, 0);
       wrist.castShadow = true;
       g.add(wrist);
 
@@ -355,61 +314,6 @@ export function makeHuman(outfit = 'zack', opts = {}) {
   const knight = charType === 'knight';
   const isWorker = charType.includes('worker') || charType === 'asian' || charType === 'casual';
   const skinMat = isWorker ? (M.skinAsian || M.skin) : M.skin;
-
-  // Real 3D Character 2 (Asian Worker) with authentic clothing, textures, and sneakers
-  if (isWorker && !opts.procedural) {
-    const root = new THREE.Group();
-    const charGroup = new THREE.Group();
-    root.add(charGroup);
-
-    const j = {
-      root, pelvis: charGroup, spine: charGroup, chest: charGroup,
-      neck: charGroup, head: charGroup,
-      lSh: new THREE.Group(), rSh: new THREE.Group(),
-      lEl: new THREE.Group(), rEl: new THREE.Group(),
-      lWr: new THREE.Group(), rWr: new THREE.Group(),
-      lHip: new THREE.Group(), rHip: new THREE.Group(),
-      lKn: new THREE.Group(), rKn: new THREE.Group(),
-      lAn: new THREE.Group(), rAn: new THREE.Group(),
-    };
-
-    getWorkerFBX((fbxInstance) => {
-      charGroup.add(fbxInstance);
-      charGroup.rotation.x = Math.PI / 2;
-      charGroup.updateMatrixWorld(true);
-
-      const box = new THREE.Box3().setFromObject(charGroup);
-      const size = new THREE.Vector3();
-      box.getSize(size);
-      const center = new THREE.Vector3();
-      box.getCenter(center);
-
-      // Scale to realistic natural height ~1.65m
-      const scale = 1.65 / (size.y || 1);
-      charGroup.scale.setScalar(scale);
-
-      charGroup.position.x = -center.x * scale;
-      charGroup.position.y = -box.min.y * scale;
-      charGroup.position.z = -center.z * scale;
-    });
-
-    return {
-      root,
-      j,
-      armor: {},
-      setPose(p = {}) {
-        if (p.drop) charGroup.position.y += p.drop;
-        if (p.spine) {
-          charGroup.rotation.y = (p.spine[1] || 0) * 0.8;
-          charGroup.rotation.z = (p.spine[2] || 0) * 0.4;
-        }
-        if (p.chest) {
-          charGroup.position.y += (p.chest[0] || 0) * 0.25;
-        }
-      },
-      setMouth(v) {}
-    };
-  }
 
   // Wardrobe determination
   let shirtMat = M.clothNavy; // default Zack
@@ -540,7 +444,7 @@ export function makeHuman(outfit = 'zack', opts = {}) {
     const forearmMat = isWorker ? skinMat : armMat;
     el.add(sph(0.046 + thick, forearmMat));
     el.add(cap(0.043 + thick, 0.21, forearmMat));
-    const wr = new THREE.Group(); wr.position.y = -0.27; el.add(wr);
+    const wr = new THREE.Group(); wr.position.y = -0.21; el.add(wr);
     wr.add(buildHand(M, handMat, s));
     j[k + 'Sh'] = sh; j[k + 'El'] = el; j[k + 'Wr'] = wr;
 

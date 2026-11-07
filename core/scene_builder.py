@@ -144,11 +144,17 @@ function shot1({{ makeStage }}) {{
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      // Dynamic speech lip-sync & eyebrow motion
+      const mouth = (Math.sin(lt * 13) > 0.05 ? 0.48 : 0.05) * (Math.sin(lt * 3.2) * 0.35 + 0.65);
+      man.setMouth(mouth);
+      // Active character animation: holding phone, talking, dropping into bowl
       standPose(man, lt, {{
-        rSh: [lerp(-0.35, -0.72, range(lt, 0, 1.8)), -0.15, 0.22],
-        rEl: [-0.85, 0, -0.1],
+        rSh: [lerp(-0.45, -0.78, range(lt, 0.2, 2.0)), -0.15, 0.22],
+        rEl: [lerp(-0.65, -0.95, range(lt, 0.2, 2.0)), 0, -0.1],
         rWr: [-0.15, 0.15, 0],
-        head: [0.22, 0, 0]
+        lSh: [0.1 + Math.sin(lt * 2.5) * 0.12, 0.05, 0.25 + Math.sin(lt * 3) * 0.08],
+        lEl: [-0.35 + Math.sin(lt * 2.5) * 0.15, 0, 0],
+        head: [0.18 + Math.sin(lt * 3.5) * 0.04, Math.sin(lt * 1.8) * 0.06, 0]
       }});
       // Phone drops into rice bowl
       const py = lerp(1.28, 0.94, range(lt, 0.4, 2.2));
@@ -164,19 +170,28 @@ function shot1({{ makeStage }}) {{
 // ============ SHOT 2: Misconception — Rice Sucking Water Myth ({t1}s - {t2}s) ============
 function shot2({{ makeStage }}) {{
   const scene = makeStage({{ shadowSize: 2.6 }});
+  const man = makeHuman('casual');
+  man.root.position.set(-0.35, 0, -0.2); scene.add(man.root);
   const bowl = riceBowl({{ withPhone: true }});
-  bowl.position.set(0, 1.10, 0); scene.add(bowl);
+  bowl.position.set(0.12, 1.10, 0); scene.add(bowl);
   const badge = misconceptionBadge("GRAINS SUCK WATER?");
-  badge.position.set(0, 1.48, 0.05); scene.add(badge);
+  badge.position.set(0.12, 1.48, 0.05); scene.add(badge);
   const c = cam(42);
 
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.4 : 0.05) * (Math.sin(lt * 2.5) * 0.3 + 0.7);
+      man.setMouth(mouth);
+      standPose(man, lt, {{
+        head: [0.08, Math.sin(lt * 3.2) * 0.22, 0],
+        lSh: [-0.45, 0.2, 0.15], lEl: [-0.85, 0, 0],
+        rSh: [0.05, 0, -0.16], rEl: [-0.18, 0, 0]
+      }});
       badge.position.y = 1.48 + Math.sin(lt * 2.5) * 0.015;
       bowl.rotation.y = lt * 0.15;
-      c.position.set(0, 1.42, lerp(1.4, 1.15, range(lt, 0, 3.0)));
-      c.lookAt(0, 1.25, 0);
+      c.position.set(0, 1.42, lerp(1.5, 1.25, range(lt, 0, 3.0)));
+      c.lookAt(0.05, 1.25, 0);
     }}
   }};
 }}
@@ -192,7 +207,16 @@ function shot3({{ makeStage }}) {{
   return {{
     scene, camera: c,
     update(lt, gt) {{
-      standPose(man, lt, {{ head: [0.15, Math.sin(lt * 3.5) * 0.06, 0] }});
+      const shockMouth = lerp(0.2, 0.85, range(lt, 0, 0.6));
+      man.setMouth(shockMouth);
+      standPose(man, lt, {{
+        rSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), -0.3, 0.45],
+        lSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), 0.3, -0.45],
+        rEl: [-0.95, 0, 0], lEl: [-0.95, 0, 0],
+        rWr: [-0.2, 0.4, 0], lWr: [-0.2, -0.4, 0],
+        head: [lerp(0.05, -0.15, range(lt, 0, 0.6)), Math.sin(lt * 4.0) * 0.08, 0],
+        spine: [lerp(0, -0.08, range(lt, 0, 0.6)), 0, 0]
+      }});
       phone.rotation.x = lt * 0.3;
       c.position.set(0.15, 1.35, lerp(1.5, 0.95, range(lt, 0, 2.5)));
       c.lookAt(0.08, 1.25, 0.35);
@@ -280,19 +304,22 @@ function shot8({{ makeStage }}) {{
   const sp = sparks(80, {{ color: [1.0, 0.4, 0.1], speed: 3.2 }});
   sp.position.set(0, 1.28, 0); scene.add(sp);
   const man = makeHuman('casual');
-  man.root.position.set(-0.32, 0, -0.15); scene.add(man.root);
+  man.root.position.set(-0.35, 0, -0.1); scene.add(man.root);
   const c = cam(43);
 
   return {{
     scene, camera: c,
     update(lt, gt) {{
       sp.update(lt);
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.5 : 0.1) * (Math.sin(lt * 2.8) * 0.3 + 0.7);
+      man.setMouth(mouth);
       standPose(man, lt, {{
-        rSh: [-0.75, -0.25, -0.35], lSh: [-0.75, 0.25, 0.35],
-        rEl: [-0.95, 0, 0], lEl: [-0.95, 0, 0],
-        head: [0.18, 0, 0]
+        rSh: [-0.75 + Math.sin(lt * 2.5) * 0.1, -0.25, -0.35],
+        lSh: [-0.60 + Math.sin(lt * 2) * 0.12, 0.25, 0.35],
+        rEl: [-0.95, 0, 0], lEl: [-0.85, 0, 0],
+        head: [0.15 + Math.sin(lt * 3) * 0.05, 0.15, 0]
       }});
-      c.position.set(0.10, 1.42, 1.75);
+      c.position.set(0.10, 1.42, 1.85);
       c.lookAt(0, 1.28, 0);
     }}
   }};
@@ -352,9 +379,12 @@ function shot1({{ makeStage }}) {{
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 13) > 0.05 ? 0.48 : 0.05) * (Math.sin(lt * 3.2) * 0.35 + 0.65);
+      man.setMouth(mouth);
       standPose(man, lt, {{
         rSh: [-0.68, -0.18, 0.22], rEl: [-0.92, 0, -0.1], rWr: [-0.15, 0.15, 0],
-        head: [0.22, 0, 0]
+        lSh: [0.1 + Math.sin(lt * 2.5) * 0.12, 0.05, 0.25],
+        head: [0.22 + Math.sin(lt * 3) * 0.04, Math.sin(lt * 1.5) * 0.05, 0]
       }});
       nail.position.y = lerp(1.48, 1.25, range(lt, 0.5, 2.5));
       c.position.set(0.24, 1.38, 1.65);
@@ -366,20 +396,29 @@ function shot1({{ makeStage }}) {{
 // ============ SHOT 2: Misconception — "Gasoline Fire?" ({t1}s - {t2}s) ============
 function shot2({{ makeStage }}) {{
   const scene = makeStage({{ shadowSize: 2.5 }});
+  const man = makeHuman('casual');
+  man.root.position.set(-0.35, 0, -0.2); scene.add(man.root);
   const battery = lithiumBatteryPouch({{ swollen: false }});
-  battery.position.set(0, 1.20, 0); scene.add(battery);
+  battery.position.set(0.10, 1.20, 0); scene.add(battery);
   const nail = sharpSteelNail();
-  nail.position.set(0, 1.35, 0); scene.add(nail);
+  nail.position.set(0.10, 1.35, 0); scene.add(nail);
   const badge = misconceptionBadge("GASOLINE EXPLOSION?");
-  badge.position.set(0, 1.55, 0.05); scene.add(badge);
+  badge.position.set(0.10, 1.55, 0.05); scene.add(badge);
   const c = cam(42);
 
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.4 : 0.05) * (Math.sin(lt * 2.5) * 0.3 + 0.7);
+      man.setMouth(mouth);
+      standPose(man, lt, {{
+        head: [0.08, Math.sin(lt * 3.2) * 0.22, 0],
+        lSh: [-0.45, 0.2, 0.15], lEl: [-0.85, 0, 0],
+        rSh: [0.05, 0, -0.16], rEl: [-0.18, 0, 0]
+      }});
       badge.position.y = 1.55 + Math.sin(lt * 2.5) * 0.015;
-      c.position.set(0, 1.45, lerp(1.35, 1.10, range(lt, 0, 3.0)));
-      c.lookAt(0, 1.30, 0);
+      c.position.set(0, 1.45, lerp(1.45, 1.20, range(lt, 0, 3.0)));
+      c.lookAt(0.05, 1.30, 0);
     }}
   }};
 }}
@@ -387,10 +426,34 @@ function shot2({{ makeStage }}) {{
 // ============ SHOT 3: Twist! — Internal Thermal Runaway Piercing ({t2}s - {t3}s) ============
 function shot3({{ makeStage }}) {{
   const scene = makeStage({{ shadowSize: 2.2 }});
+  const man = makeHuman('casual');
+  man.root.position.set(-0.30, 0, -0.15); scene.add(man.root);
   const battery = lithiumBatteryPouch({{ swollen: false }});
-  battery.position.set(0, 1.25, 0); scene.add(battery);
+  battery.position.set(0.08, 1.25, 0); scene.add(battery);
   const nail = sharpSteelNail();
-  nail.position.set(0, 1.26, 0); scene.add(nail);
+  nail.position.set(0.08, 1.26, 0); scene.add(nail);
+  const sp = sparks(40, {{ color: [0.2, 0.8, 1.0], speed: 2.5 }});
+  sp.position.set(0.08, 1.26, 0); scene.add(sp);
+  const c = cam(42);
+
+  return {{
+    scene, camera: c,
+    update(lt, gt) {{
+      sp.update(lt);
+      const shockMouth = lerp(0.2, 0.85, range(lt, 0, 0.6));
+      man.setMouth(shockMouth);
+      standPose(man, lt, {{
+        rSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), -0.3, 0.45],
+        lSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), 0.3, -0.45],
+        rEl: [-0.95, 0, 0], lEl: [-0.95, 0, 0],
+        head: [lerp(0.05, -0.15, range(lt, 0, 0.6)), Math.sin(lt * 4.0) * 0.08, 0],
+        spine: [lerp(0, -0.08, range(lt, 0, 0.6)), 0, 0]
+      }});
+      c.position.set(0.08, 1.32, lerp(1.4, 0.95, range(lt, 0, 2.5)));
+      c.lookAt(0.05, 1.25, 0);
+    }}
+  }};
+}}
   const sp = sparks(40, {{ color: [0.2, 0.8, 1.0], speed: 2.5 }});
   sp.position.set(0, 1.26, 0); scene.add(sp);
   const c = cam(42);
@@ -499,10 +562,13 @@ function shot8({{ makeStage }}) {{
     update(lt, gt) {{
       fire.update(lt);
       sp.update(lt);
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.5 : 0.1) * (Math.sin(lt * 2.8) * 0.3 + 0.7);
+      man.setMouth(mouth);
       standPose(man, lt, {{
-        rSh: [-0.80, -0.25, -0.35], lSh: [-0.80, 0.25, 0.35],
-        rEl: [-1.0, 0, 0], lEl: [-1.0, 0, 0],
-        head: [-0.15, 0, 0]
+        rSh: [-0.80 + Math.sin(lt * 2) * 0.1, -0.25, -0.35],
+        lSh: [-0.65 + Math.sin(lt * 2) * 0.12, 0.25, 0.35],
+        rEl: [-1.0, 0, 0], lEl: [-0.9, 0, 0],
+        head: [0.12 + Math.sin(lt * 3) * 0.05, 0.12, 0]
       }});
       c.position.set(0.12, 1.45, 1.85);
       c.lookAt(0, 1.30, 0.1);
@@ -768,9 +834,12 @@ function shot1({{ makeStage }}) {{
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 13) > 0.05 ? 0.48 : 0.05) * (Math.sin(lt * 3.2) * 0.35 + 0.65);
+      man.setMouth(mouth);
       standPose(man, lt, {{
         rSh: [-0.65, -0.15, 0.22], rEl: [-0.88, 0, -0.1], rWr: [-0.15, 0.2, 0],
-        head: [0.18, 0, 0]
+        lSh: [0.1 + Math.sin(lt * 2.5) * 0.12, 0.05, 0.25],
+        head: [0.18 + Math.sin(lt * 3) * 0.04, Math.sin(lt * 1.5) * 0.05, 0]
       }});
       phone.rotation.y = Math.sin(lt * 0.8) * 0.2;
       c.position.set(0.22, 1.42, 1.75);
@@ -782,19 +851,28 @@ function shot1({{ makeStage }}) {{
 // ============ SHOT 2: Misconception — Floating Question & Analysis ({t1}s - {t2}s) ============
 function shot2({{ makeStage }}) {{
   const scene = makeStage({{ shadowSize: 2.5 }});
+  const man = makeHuman('casual');
+  man.root.position.set(-0.35, 0, -0.2); scene.add(man.root);
   const phone = modernPhone({{ screenOn: true }});
-  phone.position.set(0, 1.25, 0); scene.add(phone);
+  phone.position.set(0.10, 1.25, 0); scene.add(phone);
   const badge = misconceptionBadge("HOW IT REALLY WORKS");
-  badge.position.set(0, 1.55, 0.05); scene.add(badge);
+  badge.position.set(0.10, 1.55, 0.05); scene.add(badge);
   const c = cam(42);
 
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.4 : 0.05) * (Math.sin(lt * 2.5) * 0.3 + 0.7);
+      man.setMouth(mouth);
+      standPose(man, lt, {{
+        head: [0.08, Math.sin(lt * 3.2) * 0.22, 0],
+        lSh: [-0.45, 0.2, 0.15], lEl: [-0.85, 0, 0],
+        rSh: [0.05, 0, -0.16], rEl: [-0.18, 0, 0]
+      }});
       badge.position.y = 1.55 + Math.sin(lt * 2.5) * 0.015;
       phone.rotation.y = lt * 0.2;
-      c.position.set(0, 1.45, lerp(1.35, 1.10, range(lt, 0, 3.0)));
-      c.lookAt(0, 1.30, 0);
+      c.position.set(0, 1.45, lerp(1.45, 1.20, range(lt, 0, 3.0)));
+      c.lookAt(0.05, 1.30, 0);
     }}
   }};
 }}
@@ -802,16 +880,27 @@ function shot2({{ makeStage }}) {{
 // ============ SHOT 3: Twist! — Dive Into Internal Micro-Architecture ({t2}s - {t3}s) ============
 function shot3({{ makeStage }}) {{
   const scene = makeStage({{ shadowSize: 2.2 }});
+  const man = makeHuman('casual');
+  man.root.position.set(-0.30, 0, -0.15); scene.add(man.root);
   const phone = modernPhone({{ screenOn: true }});
-  phone.position.set(0, 1.30, 0); scene.add(phone);
+  phone.position.set(0.08, 1.30, 0); scene.add(phone);
   const c = cam(42);
 
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const shockMouth = lerp(0.2, 0.85, range(lt, 0, 0.6));
+      man.setMouth(shockMouth);
+      standPose(man, lt, {{
+        rSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), -0.3, 0.45],
+        lSh: [lerp(-0.2, -0.85, range(lt, 0, 0.7)), 0.3, -0.45],
+        rEl: [-0.95, 0, 0], lEl: [-0.95, 0, 0],
+        head: [lerp(0.05, -0.15, range(lt, 0, 0.6)), Math.sin(lt * 4.0) * 0.08, 0],
+        spine: [lerp(0, -0.08, range(lt, 0, 0.6)), 0, 0]
+      }});
       phone.rotation.x = lt * 0.35;
-      c.position.set(0.06, 1.35, lerp(1.3, 0.82, range(lt, 0, 2.5)));
-      c.lookAt(0, 1.30, 0);
+      c.position.set(0.06, 1.35, lerp(1.4, 0.92, range(lt, 0, 2.5)));
+      c.lookAt(0.05, 1.30, 0);
     }}
   }};
 }}
@@ -902,10 +991,13 @@ function shot8({{ makeStage }}) {{
   return {{
     scene, camera: c,
     update(lt, gt) {{
+      const mouth = (Math.sin(lt * 12) > 0.1 ? 0.5 : 0.1) * (Math.sin(lt * 2.8) * 0.3 + 0.7);
+      man.setMouth(mouth);
       standPose(man, lt, {{
-        rSh: [-0.55, -0.15, 0.22], lSh: [-0.55, 0.15, -0.22],
+        rSh: [-0.55 + Math.sin(lt * 2) * 0.1, -0.15, 0.22],
+        lSh: [-0.55 + Math.sin(lt * 2) * 0.1, 0.15, -0.22],
         rEl: [-0.85, 0, 0], lEl: [-0.85, 0, 0],
-        head: [0.05, 0, 0]
+        head: [0.08 + Math.sin(lt * 2.5) * 0.05, 0, 0]
       }});
       phone.rotation.y = Math.sin(lt * 1.2) * 0.3;
       c.position.set(0.12, 1.45, 1.85);

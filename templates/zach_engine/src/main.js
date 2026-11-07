@@ -74,6 +74,8 @@ export function makeStage({ shadowSize = 3, sunDir = [-3, 6, 4], sun = 2.3 } = {
   key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
   scene.add(key, key.target);
   const rim = new THREE.DirectionalLight(0xdbe9ff, 1.2); rim.position.set(4, 3, -5); scene.add(rim);
+  const frontLight = new THREE.DirectionalLight(0xffffff, 1.8); frontLight.position.set(0, 2, 4); scene.add(frontLight);
+  const amb = new THREE.AmbientLight(0xffffff, 0.4); scene.add(amb);
   scene.userData.key = key;
   return scene;
 }

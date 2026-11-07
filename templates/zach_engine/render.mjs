@@ -80,7 +80,7 @@ page.setDefaultTimeout(60000);
 await page.goto(`http://localhost:${port}/index.html?render=1`, { waitUntil: 'domcontentloaded', timeout: 60000 });
 await page.waitForFunction(() => window.renderAt && window.ready, { timeout: 60000 });
 await page.evaluate(() => window.ready);
-const shot = () => page.screenshot({ clip: { x: 0, y: 0, width: 720, height: 1280 }, type: 'png', timeout: 30000 });
+const shot = () => page.screenshot({ clip: { x: 0, y: 0, width: 720, height: 1280 }, type: 'jpeg', quality: 92, timeout: 30000 });
 
 const [mode, a, b, c, d, e] = process.argv.slice(2);
 if (mode === 'stills') {
@@ -88,7 +88,7 @@ if (mode === 'stills') {
   for (const t of a.split(',').map(Number)) {
     const t0 = Date.now();
     await page.evaluate(t => window.renderAt(t), t);
-    fs.writeFileSync(path.join(b, `t_${t.toFixed(2)}.png`), await shot());
+    fs.writeFileSync(path.join(b, `t_${t.toFixed(2)}.jpg`), await shot());
     console.log('still', t, Date.now() - t0, 'ms');
   }
 } else {
@@ -96,7 +96,7 @@ if (mode === 'stills') {
   const from = Number(c || 0), to = Math.min(Number(d || dur), dur);
   const n0 = Math.round(from * fps), n1 = Math.floor(to * fps);
   const ffmpegBin = process.env.FFMPEG_PATH || 'ffmpeg';
-  const ff = spawn(ffmpegBin, ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-', '-c:v', 'libx264', '-preset', 'medium', '-crf', '17', '-pix_fmt', 'yuv420p', a], { stdio: ['pipe', 'inherit', 'inherit'] });
+  const ff = spawn(ffmpegBin, ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-', '-c:v', 'libx264', '-preset', 'fast', '-crf', '17', '-pix_fmt', 'yuv420p', a], { stdio: ['pipe', 'inherit', 'inherit'] });
   const T0 = Date.now();
   for (let n = n0; n < n1; n++) {
     await page.evaluate(t => window.renderAt(t), n / fps);
